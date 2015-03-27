@@ -2,3 +2,7 @@
 PONG PONG PONG Clock!!!
 
 ## Add library Time.zip before run it
+
+Project file >>> project folder
+
+Download Software >>> http://arduino.cc/en/Main/Software
