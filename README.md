@@ -6,3 +6,5 @@ PONG PONG PONG Clock!!!
 Project file >>> project folder
 
 Download Software >>> http://arduino.cc/en/Main/Software
+
+Time library >>> http://playground.arduino.cc/code/time
