@@ -36,7 +36,18 @@ char buffer_[18]    = "";
 char month_t[12][11]  = {"January","February","March","April","May","June","July","August","September","October","November","December"};
 char month_short_t[12][10] = {"Jan","Feb","Mar","Apr","May","June","July","Aug","Sep","Oct","Nov","Dec"};
 char day_t[7][10]     = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-char day_short_t[7][3] = {"Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"};
+char day_short_t[7][4] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+
+byte smile[8] = {
+	0b00000,
+	0b00000,
+	0b01010,
+	0b00000,
+	0b00000,
+	0b10001,
+	0b01110,
+	0b00000
+};
 
 //Mode
 #define NUMMODE    4
@@ -94,10 +105,11 @@ int read_LCD_buttons()
 
 void setup()
 {
-   setTime(1,2,3,28,3,2015);
+   setTime(0,0,0,28,3,2015);
    lcd.begin(16, 2);              // start the library
    lcd.setCursor(0,0);
    lcd.print(hour()); // print a simple message
+   lcd.createChar(0,smile);
    Serial.begin(9600);
 }
  
@@ -169,12 +181,13 @@ void show_time()
   
   lcd.print(time_bf);
 
-  sprintf(time_bf,"%s/%s/%04d", day_short_t[weekday()-1], month_short_t[month()-1], year());
+  sprintf(time_bf,"%s:%02d/%s/%04d", day_short_t[weekday()-1], day(), month_short_t[month()-1], year());
   lcd.setCursor(0,1);
   //lcd.print(String(day_short_t[weekday()-1]) + "/" + month_short_t[month()-1] + "/" + year());
   //int w = weekday();
   //lcd.print(String(day_t[6]) + "/" + month_t[1]);
   lcd.print(time_bf);
+  lcd.write((byte)0);
   Serial.print(time_bf);
   Serial.println();
   shit += 1;
