@@ -60,7 +60,16 @@ byte smile[8] = {
   0b01110,
   0b00000
 };
-
+byte sad[8] = {
+	0b00000,
+	0b00000,
+	0b10001,
+	0b00000,
+	0b00000,
+	0b01110,
+	0b10001,
+	0b00000
+};
 //Mode
 #define NUMMODE    4
 #define SELECTMODE -1
@@ -128,6 +137,7 @@ void setup()
    lcd.setCursor(0,0);
    lcd.print(hour()); // print a simple message
    lcd.createChar(0,smile);
+   lcd.createChar(1,sad);
    Serial.begin(9600);
 }
  
@@ -219,7 +229,7 @@ void show_time()
   //int w = weekday();
   //lcd.print(String(day_t[6]) + "/" + month_t[1]);
   lcd.print(buffer1);
-  lcd.write((byte)0);
+  lcd.write((byte)alarm);
   Serial.print(buffer1);
   Serial.println();
   shit += 1;
@@ -535,6 +545,7 @@ void select_mode(int key)
     case btnSELECT:
       {
         if (is_click < LONGCLICK){
+          set_sel = 2;
           mode = current_select;
           interval = 1000;
           previousMillis = 0;
@@ -554,12 +565,12 @@ void select_mode(int key)
 
 void set_temp_time()
 {
-  temp_time[0] = second();
-  temp_time[1] = minute();
-  temp_time[2] = hour();
-  temp_time[3] = day();
-  temp_time[4] = month();
-  temp_time[5] = year();
+  temp_time[SECOND] = second();
+  temp_time[MINUTE] = minute();
+  temp_time[HOUR] = hour();
+  temp_time[DAY] = day();
+  temp_time[MONTH] = month();
+  temp_time[YEAR] = year();
 }
 
 void select_game(int key)
