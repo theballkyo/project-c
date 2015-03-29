@@ -68,6 +68,7 @@ byte smile[8] = {
 #define SETTIME    1
 #define SETALARM   2
 #define SELECTGAME       3
+#define ALARMING   97
 #define PLAYGAME   98
 #define PONGPONGPONG 99
 
@@ -137,7 +138,9 @@ void loop()
   //lcd.setCursor(8,1);            // move cursor to second line "1" and 9 spaces over
   //lcd.print(t_press);      // display seconds elapsed since power-up
   lcd_key = read_LCD_buttons();
-  
+  if (hour() == alarm_time[HOUR] && minute() == alarm_time[MINUTE] && second() == alarm_time[SECOND]) {
+    //Okay, PONGPONGPONGPONGPONG
+  }
   //
   
   if (t_press > LONGCLICK)
