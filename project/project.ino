@@ -560,7 +560,7 @@ void select_mode(int key)
       }
   }
   
-  if (key < 5) delay(200);
+  if (key != btnNONE) delay(200);
 }
 
 void set_temp_time()
