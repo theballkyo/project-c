@@ -1,5 +1,7 @@
-#include <Time.h>
-
+//#include <Time.h>
+#include "Wire.h"
+#include "SPI.h"  // not used here, but needed to prevent a RTClib compile error
+#include "RTClib.h"
 //Sample using LiquidCrystal library
 #include <LiquidCrystal.h>
 
@@ -12,13 +14,15 @@ Mark Bramwell, July 2010
 
 // select the pins used on the LCD panel
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
-
+RTC_DS3231 RTC;
 // define some values used by the panel and buttons
 int lcd_key        = 0;
+int last_lcd_key   = 0;
 int adc_key_in     = 0;
 int shit           = 0;
 int mode           = 0;
 int interval       = 1000;
+int sound_interval[2] = {100, 5};
 // 0 Off 1 On
 int alarm          = 0;
 //Check button press time
@@ -38,10 +42,13 @@ int game_c[3]      = {0};
 int game_ans       = 0;
 int game_ans_c     = 0;
 int game_select_c  = 0;
-unsigned int previousMillis = 0; 
+unsigned int previousMillis[4] = {0};
+
 // time[3] > {hour, minute, second}
 int temp_time[6]        = {0,0,0,0,0,0};
-int alarm_time[3]  = {0,0,0};
+
+// 3 Day
+int alarm_time[4]  = {0,0,0,0};
 
 char buffer1[18]    = "";
 char buffer2[18]    = "";
@@ -70,6 +77,9 @@ byte sad[8] = {
 	0b10001,
 	0b00000
 };
+
+#define speakerPin     13
+
 //Mode
 #define NUMMODE    4
 #define SELECTMODE -1
@@ -132,27 +142,56 @@ int read_LCD_buttons()
 
 void setup()
 {
-   setTime(0,0,0,28,3,2015);
+   Wire.begin();
+   RTC.begin();
+   DateTime now = RTC.now();
+   //RTC.adjust(DateTime(__DATE__, __TIME__));
    lcd.begin(16, 2);              // start the library
    lcd.setCursor(0,0);
-   lcd.print(hour()); // print a simple message
+   lcd.print(now.hour()); // print a simple message
    lcd.createChar(0,smile);
    lcd.createChar(1,sad);
+   analogWrite(10, 64);
    Serial.begin(9600);
+   Serial.println("Setup");
+   //analogWrite (speakerPin, 255);
 }
  
 void loop()
 {
-  unsigned int currentMillis = millis();
   
+  //Serial.println("Hello");
+  unsigned int currentMillis = millis();
+  DateTime now = RTC.now();
   //lcd.setCursor(8,1);            // move cursor to second line "1" and 9 spaces over
   //lcd.print(t_press);      // display seconds elapsed since power-up
   lcd_key = read_LCD_buttons();
-  if (hour() == alarm_time[HOUR] && minute() == alarm_time[MINUTE] && second() == alarm_time[SECOND]) {
-    //Okay, PONGPONGPONGPONGPONG
-  }
   //
-  
+  if (now.day() == alarm_time[DAY] && now.hour() == alarm_time[HOUR] && now.minute() == alarm_time[MINUTE] && alarm == 0 && mode != SETALARM) {
+      //Serial.println("test");
+      is_alarm = 1;
+      Serial.println(String(lcd_key) + String(last_lcd_key));
+      if(lcd_key != btnNONE && last_lcd_key != lcd_key)
+      {
+        is_alarm = 0;
+        alarm_time[DAY] += 1;
+        analogWrite (speakerPin, 0);
+      } else {
+        if(currentMillis - previousMillis[1] > sound_interval[1])
+        {
+          analogWrite (speakerPin, 255);
+          previousMillis[1] =currentMillis;
+        //delay(100);
+          if(currentMillis - previousMillis[2] > sound_interval[0] + sound_interval[1])
+            {
+            previousMillis[1] =currentMillis;
+            previousMillis[2] =currentMillis;
+            analogWrite (speakerPin, 0);
+            }
+        //delay(5);
+        }
+      }
+  }
   if (t_press > LONGCLICK)
   {
     Serial.print(t_press);
@@ -167,7 +206,7 @@ void loop()
     }
   }
   
-  if(currentMillis - previousMillis > interval)
+  if(currentMillis - previousMillis[0] > interval)
   {
     if (mode == TIME) {
       show_time(); 
@@ -187,30 +226,37 @@ void loop()
         
       }
     }
+
     //Set randomSeed
     randomSeed(millis());
-    previousMillis = currentMillis;
+    last_lcd_key = lcd_key;
+    previousMillis[0] = currentMillis;
   }
-  is_click += 1;
-  switch (lcd_key)
+  if(currentMillis - previousMillis[3] > 1)
   {
-    case btnSELECT:
-      {
-        t_press += 1;
-        break;
-      }
-    case btnNONE:
-      {
-
-        is_click = 0;
-        t_press = 0;
-        break;
-      }
+    is_click += currentMillis - previousMillis[3];
+    switch (lcd_key)
+    {
+      case btnSELECT:
+        {
+          t_press += currentMillis - previousMillis[3];
+          break;
+        }
+      case btnNONE:
+        {
+          
+          is_click = 0;
+          t_press = 0;
+          break;
+        }
+    } 
+    previousMillis[3] = currentMillis;
   }
-  delay(1);
+  //delay(1);
 }
 void show_time()
 {
+  DateTime now = RTC.now();
   interval = 1000;
   /*
   lcd.setCursor(0,0);
@@ -219,21 +265,21 @@ void show_time()
   */
   lcd.clear();
   lcd.setCursor(shit,0);
-  sprintf(buffer1,"%02d:%02d:%02d",hour(),minute(),second());
-  
+  sprintf(buffer1,"%02d:%02d:%02d %dC",now.hour(),now.minute(),now.second(), (int)floor(RTC.getTemperature()));
+  Serial.println(RTC.getTemperature());
   lcd.print(buffer1);
 
-  sprintf(buffer1,"%s:%02d/%s/%04d", day_short_t[weekday()-1], day(), month_short_t[month()-1], year());
+  sprintf(buffer1,"%s:%02d/%s/%04d", day_short_t[now.dayOfWeek()-1], now.day(), month_short_t[now.month()-1], now.year());
   lcd.setCursor(0,1);
-  //lcd.print(String(day_short_t[weekday()-1]) + "/" + month_short_t[month()-1] + "/" + year());
-  //int w = weekday();
+  //lcd.print(String(day_short_t[weeknow.day()-1]) + "/" + month_short_t[now.month()-1] + "/" + now.year());
+  //int w = weeknow.day();
   //lcd.print(String(day_t[6]) + "/" + month_t[1]);
   lcd.print(buffer1);
   lcd.write((byte)alarm);
   Serial.print(buffer1);
   Serial.println();
   shit += 1;
-  if (shit >=9)
+  if (shit >=5)
     shit = 0;
 }
 
@@ -289,7 +335,7 @@ void set_time(int key)
         {
           case SECOND:
             {
-              //adjustTime(-second());
+              //adjustTime(-now.second());
               temp_time[SECOND] = 0;
               break;
             }
@@ -314,13 +360,13 @@ void set_time(int key)
           case MONTH:
             {
               temp_time[MONTH] += 1;
-              //setTime(hour(), minute(), second(), day(), month()+1, year());
+              //setTime(now.hour(), now.minute(), now.second(), now.day(), now.month()+1, now.year());
               break;
             } 
           case YEAR:
             {
               temp_time[YEAR] += 1;
-              //setTime(hour(), minute(), second(), day(), month(), year()+1);
+              //setTime(now.hour(), now.minute(), now.second(), now.day(), now.month(), now.year()+1);
               break;
             }  
         }
@@ -333,7 +379,7 @@ void set_time(int key)
         {
           case SECOND:
             {
-              //adjustTime(-second());
+              //adjustTime(-now.second());
               temp_time[SECOND] = 0;
               break;
             }
@@ -358,13 +404,13 @@ void set_time(int key)
           case MONTH:
             {
               temp_time[MONTH] -= 1;
-              //setTime(hour(), minute(), second(), day(), month()+1, year());
+              //setTime(now.hour(), now.minute(), now.second(), now.day(), now.month()+1, now.year());
               break;
             } 
           case YEAR:
             {
               temp_time[YEAR] -= 1;
-              //setTime(hour(), minute(), second(), day(), month(), year()+1);
+              //setTime(now.hour(), now.minute(), now.second(), now.day(), now.month(), now.year()+1);
               break;
             }  
         }
@@ -373,7 +419,7 @@ void set_time(int key)
       
     case btnSELECT:
       {
-        if (is_click < LONGCLICK) mode = TIME, interval = 1000, previousMillis = 0, lcd.clear(), setTime(temp_time[HOUR], temp_time[MINUTE], temp_time[SECOND], temp_time[DAY], temp_time[MONTH], temp_time[YEAR]);
+        if (is_click < LONGCLICK) mode = TIME, interval = 1000, previousMillis[0] = 0, lcd.clear(), RTC.adjust(DateTime(temp_time[YEAR], temp_time[MONTH], temp_time[DAY], temp_time[HOUR], temp_time[MINUTE], temp_time[SECOND]));
         break;
       }
   }
@@ -397,6 +443,8 @@ void set_time(int key)
 
 void set_alarm(int key)
 {
+  DateTime now = RTC.now();
+  alarm_time[DAY] = now.day();
   char alarm_t[2][5] = {"On", "Off"};
   interval = 100;
   sprintf(buffer1, "%02d:%02d:%02d",alarm_time[HOUR], alarm_time[MINUTE], alarm_time[SECOND]);
@@ -491,7 +539,7 @@ void set_alarm(int key)
       
     case btnSELECT:
       {
-        if (is_click < LONGCLICK) mode = TIME, interval = 1000, previousMillis = 0, lcd.clear();
+        if (is_click < LONGCLICK) mode = TIME, interval = 1000, previousMillis[0] = 0, lcd.clear();
         break;
       }
   }
@@ -513,19 +561,20 @@ void set_alarm(int key)
 
 void select_mode(int key)
 {
-  lcd.setCursor(1,1);
-  lcd.print("              ");
+  interval = 100;
+  //lcd.setCursor(1,1);
+  //lcd.print("              ");
   lcd.setCursor(1,1);
   if (current_select == TIME) {
-    lcd.print("Time");
+    lcd.print("Time         ");
   } else if (current_select == SETTIME) {
-    lcd.print("Set time.");
+    lcd.print("Set time.      ");
   } else if (current_select == SETALARM) {
-    lcd.print("Set alarm.");
+    lcd.print("Set alarm.     ");
   } else if (current_select == SELECTGAME) {
     lcd.print("Play game Yeah!");
   } else if (current_select == NUMMODE) {
-    lcd.print("Exit.");
+    lcd.print("Exit.         ");
   }
   
   switch (key)
@@ -548,7 +597,7 @@ void select_mode(int key)
           set_sel = 2;
           mode = current_select;
           interval = 1000;
-          previousMillis = 0;
+          previousMillis[0] = 0;
           lcd.clear();
           if (mode == SETTIME) {
             set_temp_time();
@@ -560,17 +609,18 @@ void select_mode(int key)
       }
   }
   
-  if (key != btnNONE) delay(200);
+  if (key < 5) delay(200);
 }
 
 void set_temp_time()
 {
-  temp_time[SECOND] = second();
-  temp_time[MINUTE] = minute();
-  temp_time[HOUR] = hour();
-  temp_time[DAY] = day();
-  temp_time[MONTH] = month();
-  temp_time[YEAR] = year();
+  DateTime now = RTC.now();
+  temp_time[SECOND] = now.second();
+  temp_time[MINUTE] = now.minute();
+  temp_time[HOUR] = now.hour();
+  temp_time[DAY] = now.day();
+  temp_time[MONTH] = now.month();
+  temp_time[YEAR] = now.year();
 }
 
 void select_game(int key)
@@ -608,7 +658,7 @@ void select_game(int key)
         if (is_click < LONGCLICK){
           mode = PLAYGAME;
           //interval = 100;
-          previousMillis = 0;
+          previousMillis[0] = 0;
           lcd.clear();
         }
         if (game_select == 2) mode = TIME;
@@ -690,12 +740,3 @@ void game1(int key)
   }
   if (key != btnNONE) delay(200);
 }
-
-
-
-
-
-
-
-
-
