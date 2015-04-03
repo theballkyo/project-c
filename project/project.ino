@@ -31,6 +31,7 @@ int set_sel        = 2;
 int current_select = 0;
 int game_select    = 0;
 //
+int cd             = 0;
 int is_vision      = 0;
 int is_click       = 0;
 int is_pongpongpong = 0;
@@ -42,6 +43,9 @@ int game_c[3]      = {0};
 int game_ans       = 0;
 int game_ans_c     = 0;
 int game_select_c  = 0;
+
+int game_pos_me[2] = {0};
+int game_dm[2][16] = {0};
 unsigned int previousMillis[4] = {0};
 
 // time[3] > {hour, minute, second}
@@ -120,6 +124,13 @@ int brightlv = 255;
 #define GAME1     0
 #define GAME2     1
 
+//Game mode
+#define GAME2END  90
+
+//GAME KEY
+#define X         0
+#define Y         1
+
 //Set time select
 #define YEAR      5
 #define MONTH     4
@@ -178,7 +189,7 @@ void setup()
    lcd.createChar(1,sad);
    lcd.createChar(2, barUp);
    lcd.createChar(3, barDown);
-   analogWrite(10, 64);
+   analogWrite(10, brightlv);
    Serial.begin(9600);
    Serial.println("Setup");
    //analogWrite (speakerPin, 255);
@@ -250,7 +261,9 @@ void loop()
       if (game_select == GAME1) {
         game1(lcd_key);
       } else if (game_select == GAME2) {
-        
+        game2(lcd_key);
+      } else if (game_select == GAME2END) {
+        game2_end(lcd_key);
       }
     } else if (mode == SETBRIGHT) {
       brigtness(lcd_key);
@@ -321,7 +334,7 @@ void set_time(int key)
   // Set cooldown blink = 3
   sprintf(buffer1,"%02d:%02d:%02d",temp_time[HOUR],temp_time[MINUTE],temp_time[SECOND]);
   sprintf(buffer2,"%02d/%4s/%04d", temp_time[DAY], month_short_t[temp_time[MONTH]-1], temp_time[YEAR]);
-  if (is_vision == 4) {
+  if (cd == 4) {
     if (set_sel == SECOND) {
       sprintf(buffer1,"%02d:%02d:  ",temp_time[HOUR],temp_time[MINUTE]);
     } else if (set_sel == MINUTE) {
@@ -335,9 +348,9 @@ void set_time(int key)
     } else if (set_sel == YEAR) {
       sprintf(buffer2,"%02d/%4s/    ", temp_time[DAY], month_short_t[temp_time[MONTH]-1]);
     } 
-    is_vision = 0;
+    cd = 0;
   } else {
-    is_vision += 1;
+    cd += 1;
   }
   
   switch (key)
@@ -477,7 +490,7 @@ void set_alarm(int key)
   interval = 100;
   sprintf(buffer1, "%02d:%02d:%02d",alarm_time[HOUR], alarm_time[MINUTE], alarm_time[SECOND]);
   sprintf(buffer2,"Alarm is %s",alarm_t[alarm]);
-  if (is_vision == 4) {
+  if (cd == 4) {
     if (set_sel == SECOND) {
       sprintf(buffer1,"%02d:%02d:  ",alarm_time[HOUR],alarm_time[MINUTE]);
     } else if (set_sel == MINUTE) {
@@ -686,12 +699,14 @@ void select_game(int key)
     case btnSELECT:
       {
         if (is_click < LONGCLICK){
+          //Reset variable
+          reset_var();
           mode = PLAYGAME;
           //interval = 100;
           previousMillis[0] = 0;
           lcd.clear();
         }
-        if (game_select == 2) mode = TIME;
+        //if (game_select == 2) mode = TIME;
         break;
       }
   }
@@ -770,6 +785,92 @@ void game1(int key)
   }
   if (key != btnNONE) delay(200);
 
+}
+
+void game2(int key)
+{
+  interval = 100;
+  lcd.clear();
+  lcd.setCursor(0,0);
+  //game_dm[1] = 1;
+  //lcd.print(">");
+  for(int i = 0; i < 16; i++)
+  {
+    if (game_pos_me[Y] == 0) {
+      if (game_pos_me[X] == i) {
+        lcd.print(">");
+      } else {
+        lcd.print(" ");
+      }
+
+    }
+  }
+  lcd.setCursor(0,1);
+  for(int i = 0; i < 16; i++)
+  {
+    if (game_pos_me[Y] == 1) {
+      if (game_pos_me[X] == i) {
+        lcd.print(">");
+      } else {
+        lcd.print(" ");
+      }
+    }
+  }
+  if(last_lcd_key != key)
+  {
+    switch(key){
+        
+      case btnUP:
+      {
+      	game_pos_me[Y] = 0;
+        break;
+      }
+      case btnDOWN:
+      {
+        game_pos_me[Y] = 1;
+        break;
+      }
+      case btnRIGHT:
+      {
+        game_pos_me[X] += 1;
+        break;
+      }
+    }
+  }
+
+  if (game_pos_me[X] >= 14)
+  {
+    game_select = GAME2END;
+  }
+}
+
+void game2_end(int key)
+{
+  interval = 100;
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Win Yeahh");
+  lcd.setCursor(0,1);
+  lcd.print("Please any key.");
+  if(key != btnNONE){
+    game_select = GAME2;
+    mode = SELECTGAME;
+  }
+}
+
+void reset_var()
+{
+  a              = 0;
+  b              = 0;
+  //game_select    = 0;
+  //game_c[3]      = {0};
+  game_ans       = 0;
+  game_ans_c     = 0;
+  game_select_c  = 0;
+  memset(game_pos_me, 0, sizeof(game_pos_me));
+  memset(game_dm, 0, sizeof(game_dm[0][0]));
+  //game_pos_me = {0};
+  //game_dm[2][16] = {0};
 }
 void brigtness(int key)
 {
