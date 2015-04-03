@@ -193,6 +193,8 @@ void setup()
    Serial.begin(9600);
    Serial.println("Setup");
    //analogWrite (speakerPin, 255);
+   mode =PLAYGAME;
+   game_select =GAME2;
 }
  
 void loop()
@@ -789,33 +791,64 @@ void game1(int key)
 
 void game2(int key)
 {
+  //int f_spawn = 0;
   interval = 100;
   lcd.clear();
-  lcd.setCursor(0,0);
-  //game_dm[1] = 1;
-  //lcd.print(">");
-  for(int i = 0; i < 16; i++)
-  {
-    if (game_pos_me[Y] == 0) {
-      if (game_pos_me[X] == i) {
-        lcd.print(">");
-      } else {
-        lcd.print(" ");
-      }
 
-    }
-  }
-  lcd.setCursor(0,1);
-  for(int i = 0; i < 16; i++)
-  {
-    if (game_pos_me[Y] == 1) {
-      if (game_pos_me[X] == i) {
-        lcd.print(">");
+  lcd.setCursor(0,0);
+    for(int i = 0; i < 15; i++)
+    {
+      //game_dm[0][i+1] = (game_dm[0][i+1]) ? 0 : 1;
+      /*
+      if (game_pos_me[Y] == 0) {
+        if (game_pos_me[X] == i) {
+          lcd.print(">");
+        }
+      }
+      */
+      if (game_dm[0][i] == 1) {
+        lcd.print("-"); 
       } else {
         lcd.print(" ");
       }
+      
     }
-  }
+    lcd.setCursor(0,1);
+    for(int i = 0; i < 15; i++)
+    {
+      /*
+      if (game_pos_me[Y] == 1) {
+        if (game_pos_me[X] == i) {
+          lcd.print(">");
+        }
+      }
+      */
+      if (game_dm[1][i] == 1) {
+        lcd.print("-"); 
+      } else {
+        lcd.print(" ");
+      }
+      
+      //Generate 
+      if (cd >= interval * 10) {
+        game_dm[0][i] = game_dm[0][i+1];
+        game_dm[1][i] = game_dm[1][i+1];
+        if (game_dm[0][i-1] == 0 && game_dm[1][i-1] == 0 && game_dm[0][i-2] == 0 && game_dm[1][i-2] == 0 && i == 14) {
+         if (random(1,2) == 1) {
+           if (random(0,100) > 50) {
+             game_dm[0][i] = 1;
+           } else {
+             game_dm[1][i] = 1;
+           }
+         }
+        }
+      }
+    }
+  if (cd >= interval * 10)
+    cd = 0;
+  cd += interval;
+  lcd.setCursor(game_pos_me[X], game_pos_me[Y]);
+  lcd.print(">");
   if(last_lcd_key != key)
   {
     switch(key){
@@ -840,19 +873,33 @@ void game2(int key)
 
   if (game_pos_me[X] >= 14)
   {
+    game_ans = 1;
     game_select = GAME2END;
+    delay(500);
+  }
+  Serial.println(game_dm[game_pos_me[Y]][game_pos_me[X]]);
+  if (game_dm[game_pos_me[Y]][game_pos_me[X]] == 1)
+  {
+    game_ans = 0;
+    game_select = GAME2END;
+    delay(500);
   }
 }
 
 void game2_end(int key)
 {
+  
   interval = 100;
-  lcd.clear();
+  //lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("Win Yeahh");
+  if (game_ans == 1)
+    lcd.print("Win Yeahh");
+   else
+    lcd.print("Lose Yeahh");
   lcd.setCursor(0,1);
   lcd.print("Please any key.");
-  if(key != btnNONE){
+  //delay(2000);
+  if(key != btnNONE && last_lcd_key != key){
     game_select = GAME2;
     mode = SELECTGAME;
   }
@@ -868,7 +915,7 @@ void reset_var()
   game_ans_c     = 0;
   game_select_c  = 0;
   memset(game_pos_me, 0, sizeof(game_pos_me));
-  memset(game_dm, 0, sizeof(game_dm[0][0]));
+  memset(game_dm, 0, sizeof(game_dm[0][0])*2*16);
   //game_pos_me = {0};
   //game_dm[2][16] = {0};
 }
