@@ -21,6 +21,7 @@ int last_lcd_key   = 0;
 int adc_key_in     = 0;
 int shit           = 0;
 int mode           = 0;
+int last_mode      = 0;
 int interval       = 1000;
 int sound_interval[2] = {100, 5};
 // 0 Off 1 On
@@ -193,8 +194,8 @@ void setup()
    Serial.begin(9600);
    Serial.println("Setup");
    //analogWrite (speakerPin, 255);
-   mode =PLAYGAME;
-   game_select =GAME2;
+   //mode =PLAYGAME;
+   //game_select =GAME2;
 }
  
 void loop()
@@ -248,6 +249,10 @@ void loop()
   
   if(currentMillis - previousMillis[0] > interval)
   {
+    if(mode != last_mode)
+    {
+      lcd.clear(); 
+    }
     if (mode == TIME) {
       show_time(); 
     } else if (mode == SETTIME) {
@@ -708,7 +713,7 @@ void select_game(int key)
           previousMillis[0] = 0;
           lcd.clear();
         }
-        //if (game_select == 2) mode = TIME;
+        if (game_select == 2) mode = TIME;
         break;
       }
   }
@@ -794,7 +799,7 @@ void game2(int key)
   //int f_spawn = 0;
   interval = 100;
   lcd.clear();
-
+  
   lcd.setCursor(0,0);
     for(int i = 0; i < 14; i++)
     {
@@ -849,6 +854,10 @@ void game2(int key)
   cd += interval;
   lcd.setCursor(game_pos_me[X], game_pos_me[Y]);
   lcd.print(">");
+  lcd.setCursor(14, 0);
+  lcd.print("^^");
+  lcd.setCursor(14, 1);
+  lcd.print("oo");
   if(last_lcd_key != key)
   {
     switch(key){
