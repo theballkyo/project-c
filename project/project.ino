@@ -796,7 +796,7 @@ void game2(int key)
   lcd.clear();
 
   lcd.setCursor(0,0);
-    for(int i = 0; i < 15; i++)
+    for(int i = 0; i < 14; i++)
     {
       //game_dm[0][i+1] = (game_dm[0][i+1]) ? 0 : 1;
       /*
@@ -814,7 +814,7 @@ void game2(int key)
       
     }
     lcd.setCursor(0,1);
-    for(int i = 0; i < 15; i++)
+    for(int i = 0; i < 14; i++)
     {
       /*
       if (game_pos_me[Y] == 1) {
@@ -833,7 +833,7 @@ void game2(int key)
       if (cd >= interval * 10) {
         game_dm[0][i] = game_dm[0][i+1];
         game_dm[1][i] = game_dm[1][i+1];
-        if (game_dm[0][i-1] == 0 && game_dm[1][i-1] == 0 && game_dm[0][i-2] == 0 && game_dm[1][i-2] == 0 && i == 14) {
+        if (game_dm[0][i-1] == 0 && game_dm[1][i-1] == 0 && game_dm[0][i-2] == 0 && game_dm[1][i-2] == 0 && i == 13) {
          if (random(1,2) == 1) {
            if (random(0,100) > 50) {
              game_dm[0][i] = 1;
