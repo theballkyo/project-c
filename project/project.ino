@@ -60,7 +60,7 @@ char buffer2[18]    = "";
 char month_t[12][11]  = {"January","February","March","April","May","June","July","August","September","October","November","December"};
 char month_short_t[12][10] = {"Jan","Feb","Mar","Apr","May","June","July","Aug","Sep","Oct","Nov","Dec"};
 char day_t[7][10]     = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-char day_short_t[7][4] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+char day_short_t[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 byte smile[8] = {
   0b00000,
@@ -317,7 +317,7 @@ void show_time()
   Serial.println(RTC.getTemperature());
   lcd.print(buffer1);
 
-  sprintf(buffer1,"%s:%02d/%s/%04d", day_short_t[now.dayOfWeek()-1], now.day(), month_short_t[now.month()-1], now.year());
+  sprintf(buffer1,"%s:%02d/%s/%04d", day_short_t[now.dayOfWeek()], now.day(), month_short_t[now.month()-1], now.year());
   lcd.setCursor(0,1);
   //lcd.print(String(day_short_t[weeknow.day()-1]) + "/" + month_short_t[now.month()-1] + "/" + now.year());
   //int w = weeknow.day();
