@@ -1,7 +1,10 @@
+
 //#include <Time.h>
 #include "Wire.h"
 #include "SPI.h"  // not used here, but needed to prevent a RTClib compile error
 #include "RTClib.h"
+#include "brightness.h"
+#include "config.h"
 //Sample using LiquidCrystal library
 #include <LiquidCrystal.h>
 
@@ -104,22 +107,9 @@ byte barDown[8] = {
   0b00000,
   0b00000
 };
-int brightlv = 255;
 
 //setup Sound
 #define speakerPin     13
-
-//Mode
-#define NUMMODE    5
-#define SELECTMODE -1
-#define TIME       0
-#define SETTIME    1
-#define SETALARM   2
-#define SELECTGAME 3
-#define SETBRIGHT  4
-#define ALARMING   97
-#define PLAYGAME   98
-#define PONGPONGPONG 99
 
 //Game list
 #define GAME1     0
@@ -142,13 +132,14 @@ int brightlv = 255;
 
 #define LONGCLICK 2000
 //Button keys
+/*
 #define btnRIGHT  0
 #define btnUP     1
 #define btnDOWN   2
 #define btnLEFT   3
 #define btnSELECT 4
 #define btnNONE   5
-
+*/
 // read the buttons
 int read_LCD_buttons()
 {
@@ -190,7 +181,7 @@ void setup()
    lcd.createChar(1,sad);
    lcd.createChar(2, barUp);
    lcd.createChar(3, barDown);
-   analogWrite(10, brightlv);
+   analogWrite(10, get_bright_lv());
    Serial.begin(9600);
    Serial.println("Setup");
    //analogWrite (speakerPin, 255);
@@ -273,7 +264,7 @@ void loop()
         game2_end(lcd_key);
       }
     } else if (mode == SETBRIGHT) {
-      brigtness(lcd_key);
+      brigtness(lcd, lcd_key, interval, mode);
     }
     //Set randomSeed
     randomSeed(millis());
@@ -610,6 +601,8 @@ void set_alarm(int key)
 void select_mode(int key)
 {
   interval = 100;
+  lcd.setCursor(0,0);
+  lcd.print("Plz select mode.");
   //lcd.setCursor(1,1);
   //lcd.print("              ");
   lcd.setCursor(1,1);
@@ -928,47 +921,5 @@ void reset_var()
   //game_pos_me = {0};
   //game_dm[2][16] = {0};
 }
-void brigtness(int key)
-{
-  interval = 100;
-  lcd.setCursor(0,0);
-  lcd.print("Set Bright Level");
-  if (brightlv > 255) brightlv = 255;
-  else if (brightlv < 0) brightlv = 0;
-  int brightcursor=0;
-  lcd.setCursor(0,1);
-  lcd.print("                 ");
-  lcd.setCursor(0,1);
-  analogWrite(10, brightlv);
-  for (brightcursor = 0; brightcursor <= brightlv/16; ++brightcursor)
-  {
-    lcd.write(byte(2));
-  }
-  brightcursor--;
-    switch(key)
-    {
-      case btnUP:
-        {
-          brightlv+=16;
-          brightcursor++;
-          //lcd.setCursor(1,brightcursor);
-          //lcd.write(byte(2));
-          break;
-        }
-      case btnDOWN:
-        {
-          brightlv-=16;
-          brightcursor--;
-          //lcd.setCursor(1,brightcursor);
-          //lcd.write(byte(3));
-          break;
-        }
-      case btnSELECT:
-        {
-          mode = TIME;
-         lcd.clear(); 
-        }
-    }
 
-}
 
