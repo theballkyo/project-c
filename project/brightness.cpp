@@ -4,7 +4,7 @@
 
 int brightlv = 255;
 
-void brigtness(LiquidCrystal lcd, int key, int& interval, int& mode)
+void brigtness()
 {
   interval = 100;
   lcd.setCursor(0,0);
@@ -21,7 +21,7 @@ void brigtness(LiquidCrystal lcd, int key, int& interval, int& mode)
     lcd.write(byte(2));
   }
   brightcursor--;
-    switch(key)
+    switch(lcd_key)
     {
       case btnUP:
         {
@@ -42,7 +42,7 @@ void brigtness(LiquidCrystal lcd, int key, int& interval, int& mode)
       case btnSELECT:
         {
           mode = TIME;
-         lcd.clear(); 
+          lcd.clear(); 
         }
     }
 

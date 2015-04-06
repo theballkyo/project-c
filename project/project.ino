@@ -190,15 +190,15 @@ void loop()
         game2_end(lcd, lcd_key, interval, mode, game_select);
       }
     } else if (mode == SETBRIGHT) {
-      brigtness(lcd, lcd_key, interval, mode);
+      brigtness();
     }
     //Set randomSeed
     randomSeed(millis());
     last_lcd_key = lcd_key;
     previousMillis[0] = currentMillis;
   }
-  if(currentMillis - previousMillis[3] > 1)
-  {
+  
+  if (currentMillis - previousMillis[3] > 1) {
     is_click += currentMillis - previousMillis[3];
     switch (lcd_key)
     {
@@ -209,7 +209,6 @@ void loop()
         }
       case btnNONE:
         {
-          
           is_click = 0;
           t_press = 0;
           break;
@@ -275,7 +274,7 @@ void select_mode(int key)
       }
   }
   
-  if (key < 5) delay(200);
+  if (key != btnNONE) delay(200);
 }
 
 void select_game(int key)
@@ -330,5 +329,5 @@ void write_eeprom(int addr, int data)
 {
   if (EEPROM.read(addr) != data) {
     EEPROM.write(addr, data);
-  } 
+  }
 }

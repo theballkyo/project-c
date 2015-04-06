@@ -1,6 +1,10 @@
 #include "config.h"
 #include <LiquidCrystal.h>
 
-void brigtness(LiquidCrystal lcd, int key, int& interval, int& mode);
+extern LiquidCrystal lcd;
+extern int lcd_key;
+extern int interval;
+extern int mode;
+void brigtness();
 
 int get_bright_lv();
