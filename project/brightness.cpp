@@ -1,5 +1,5 @@
 #include "Arduino.h"
-#include "game4.h"
+#include "brightness.h"
 //#include <LiquidCrystal.h>
 
 int brightlv = 255;
