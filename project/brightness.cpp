@@ -10,33 +10,27 @@ void brigtness()
   lcd.setCursor(0,0);
   lcd.print("Set Bright Level");
   if (brightlv > 255) brightlv = 255;
-  else if (brightlv < 0) brightlv = 0;
-  int brightcursor=0;
+  else if (brightlv < 0) brightlv = 1;
+  //int i=0;
   lcd.setCursor(0,1);
   lcd.print("                 ");
   lcd.setCursor(0,1);
   analogWrite(10, brightlv);
-  for (brightcursor = 0; brightcursor <= brightlv/16; ++brightcursor)
+  for (int i = 1; i <= brightlv/16; ++i)
   {
     lcd.write(byte(2));
   }
-  brightcursor--;
+
     switch(lcd_key)
     {
       case btnUP:
         {
           brightlv+=16;
-          brightcursor++;
-          //lcd.setCursor(1,brightcursor);
-          //lcd.write(byte(2));
           break;
         }
       case btnDOWN:
         {
           brightlv-=16;
-          brightcursor--;
-          //lcd.setCursor(1,brightcursor);
-          //lcd.write(byte(3));
           break;
         }
       case btnSELECT:
