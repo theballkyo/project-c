@@ -1,8 +1,9 @@
 #include "Arduino.h"
 #include "brightness.h"
+#include "EEPROM.h"
 //#include <LiquidCrystal.h>
 
-int brightlv = 255;
+int brightlv = EEPROM.read(ADDRBN);
 
 void brigtness()
 {
@@ -16,7 +17,7 @@ void brigtness()
   lcd.print("                 ");
   lcd.setCursor(0,1);
   analogWrite(10, brightlv);
-  for (int i = 1; i <= brightlv/16; ++i)
+  for (int i = 0; i <= brightlv/16; ++i)
   {
     lcd.write(byte(2));
   }
@@ -28,6 +29,16 @@ void brigtness()
           brightlv+=16;
           break;
         }
+      case btnRIGHT:
+        {
+          brightlv+=16;
+          break;
+        }
+      case btnLEFT:
+        {
+          brightlv-=16;
+          break;
+        }
       case btnDOWN:
         {
           brightlv-=16;
@@ -35,6 +46,7 @@ void brigtness()
         }
       case btnSELECT:
         {
+          write_eeprom(ADDRBN, brightlv);
           mode = TIME;
           lcd.clear(); 
         }

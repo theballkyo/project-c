@@ -130,8 +130,8 @@ void setup()
    lcd.begin(16, 2);              // start the library
    lcd.setCursor(0,0);
    lcd.print(now.hour()); // print a simple message
-   lcd.createChar(0,smile);
-   lcd.createChar(1,sad);
+   lcd.createChar(1,smile);
+   lcd.createChar(0,sad);
    lcd.createChar(2, barUp);
    analogWrite(10, get_bright_lv());
    Serial.begin(9600);
@@ -149,7 +149,7 @@ void loop()
   //DateTime now = RTC.now();
 
   lcd_key = read_LCD_buttons();
-  if (is_alarming()) play_sound_alarm();
+  if ((is_alarming()==1 || is_pongpongpong == 1) && game_select != GAME2END) play_sound_alarm(),mode=PLAYGAME, game_select=GAME2, is_pongpongpong=1;
   if (t_press > LONGCLICK)
   {
     Serial.print(t_press);
@@ -168,6 +168,7 @@ void loop()
   {
     if(mode != last_mode)
     {
+      last_mode = mode;
       lcd.clear(); 
     }
     if (mode == TIME) {
@@ -309,13 +310,16 @@ void select_game(int key)
       }
     case btnSELECT:
       {
+        if (is_pongpongpong && game_select == 2) {
+          break;
+        }
         if (is_click < LONGCLICK){
+          lcd.clear();
           //Reset variable
-          //reset_var();
+          reset_var();
           mode = PLAYGAME;
           //interval = 100;
           previousMillis[0] = 0;
-          lcd.clear();
         }
         if (game_select == 2) mode = TIME;
         break;
@@ -324,10 +328,22 @@ void select_game(int key)
   
   if (key != btnNONE) delay(200);
 }
+
 //this performs as EEPROM.write(i, i)
 void write_eeprom(int addr, int data)
 {
   if (EEPROM.read(addr) != data) {
     EEPROM.write(addr, data);
   }
+}
+
+void reset_var()
+{
+  a              = 0;
+  b              = 0;
+  game_ans       = 0;
+  game_ans_c     = 0;
+  game_select_c  = 0;
+  memset(game_pos_me, 0, sizeof(game_pos_me));
+  memset(game_dm, 0, sizeof(game_dm[0][0])*2*16);
 }

@@ -1,13 +1,7 @@
 #include "Arduino.h"
 #include "game2.h"
 #include "config.h"
-/*
-int game_pos_me[2] = {0};
-int game_dm[2][16] = {0};
-int game_ans       = 0;
-int cd = 0;
-int last_lcd_key = btnNONE;
-*/
+
 void game2(LiquidCrystal lcd, int key, int& interval, int& mode, int& game_select)
 {
   //int f_spawn = 0;
@@ -17,14 +11,6 @@ void game2(LiquidCrystal lcd, int key, int& interval, int& mode, int& game_selec
   lcd.setCursor(0,0);
     for(int i = 0; i < 14; i++)
     {
-      //game_dm[0][i+1] = (game_dm[0][i+1]) ? 0 : 1;
-      /*
-      if (game_pos_me[Y] == 0) {
-        if (game_pos_me[X] == i) {
-          lcd.print(">");
-        }
-      }
-      */
       if (game_dm[0][i] == 1) {
         lcd.print("-"); 
       } else {
@@ -49,7 +35,7 @@ void game2(LiquidCrystal lcd, int key, int& interval, int& mode, int& game_selec
       }
       
       //Generate 
-      if (cd >= interval * 10) {
+      if (cd >= interval*5) {
         game_dm[0][i] = game_dm[0][i+1];
         game_dm[1][i] = game_dm[1][i+1];
         if (game_dm[0][i-1] == 0 && game_dm[1][i-1] == 0 && game_dm[0][i-2] == 0 && game_dm[1][i-2] == 0 && i == 13) {
@@ -63,7 +49,7 @@ void game2(LiquidCrystal lcd, int key, int& interval, int& mode, int& game_selec
         }
       }
     }
-  if (cd >= interval * 10)
+  if (cd >= interval * 5)
     cd = 0;
   cd += interval;
   lcd.setCursor(game_pos_me[X], game_pos_me[Y]);
@@ -100,20 +86,22 @@ void game2(LiquidCrystal lcd, int key, int& interval, int& mode, int& game_selec
     game_select = GAME2END;
     delay(500);
   }
-  Serial.println(game_dm[game_pos_me[Y]][game_pos_me[X]]);
+  //Serial.println(game_dm[game_pos_me[Y]][game_pos_me[X]]);
   if (game_dm[game_pos_me[Y]][game_pos_me[X]] == 1)
   {
+    lcd.clear();
     game_ans = 0;
     game_select = GAME2END;
     delay(500);
   }
 }
 
-void game2_end(LiquidCrystal lcd, int key, int& interval, int& mode, int& game_select)
+int game2_end(LiquidCrystal lcd, int key, int& interval, int& mode, int& game_select)
 {
+  lcd.setCursor(0,0);
   interval = 100;
   //lcd.clear();
-  lcd.setCursor(0,0);
+  //lcd.setCursor(0,0);
   if (game_ans == 1)
     lcd.print("Win Yeahh");
    else
@@ -124,17 +112,16 @@ void game2_end(LiquidCrystal lcd, int key, int& interval, int& mode, int& game_s
   if(key != btnNONE && last_lcd_key != key){
     game_select = GAME2;
     mode = SELECTGAME;
+    if (is_pongpongpong && game_ans ==0) {
+     game_select = GAME2;
+     mode = PLAYGAME;
+     reset_var();
+    } else if (is_pongpongpong && game_ans  == 1) {
+      is_pongpongpong = 0;
+      is_alarm == 0;
+    }
   }
+  return 0;
 }
-void reset_var()
-{
-  //a              = 0;
-  //b              = 0;
-  game_ans       = 0;
-  //game_ans_c     = 0;
-  //game_select_c  = 0;
-  memset(game_pos_me, 0, sizeof(game_pos_me));
-  memset(game_dm, 0, sizeof(game_dm[0][0])*2*16);
 
-}
 

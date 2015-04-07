@@ -2,21 +2,12 @@
 #include "game1.h"
 #include "config.h"
 /*
-int is_generate = 0;
-int a              = 0;
-int b              = 0;
-int game_c[3]      = {0};
-int game_ans       = 0;
-int game_ans_c     = 0;
-int game_select_c  = 0;
-*/
-/*
   Game Math Kid Wai
 */
 
 void game1(LiquidCrystal lcd, int key, int& interval, int& mode)
 {
-  char buffer[18] = "";
+  //char buffer[18] = "";
   interval = 100;
   if (!is_generate) {
     a = random(100,500);
@@ -43,11 +34,11 @@ void game1(LiquidCrystal lcd, int key, int& interval, int& mode)
       }
       //lcd.setCursor((i+1)*5 + 1,1); 
     }
-    sprintf(buffer, " %d  %d  %d", game_c[0], game_c[1], game_c[2]);
+    sprintf(buffer1, " %d  %d  %d", game_c[0], game_c[1], game_c[2]);
     is_generate = 1;
   }
   lcd.setCursor(0,1);
-  lcd.print(buffer);
+  lcd.print(buffer1);
   lcd.setCursor(game_select_c*5,1);
   lcd.print(">");
   switch(key)

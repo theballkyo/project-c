@@ -322,12 +322,13 @@ int is_alarming()
 {
   if (is_alarm == 1) return is_alarm;
   DateTime now = RTC.now();
+  //Serial.println("alarm");
   if (now.hour() == alarm_time[HOUR] && now.minute() == alarm_time[MINUTE] && alarm == 1 && mode != SETALARM && now.second() <= 1) {
       Serial.println("test");
       is_alarm = 1;
   }
   // Alarm over 1 minute
-  if (is_alarm == 1 && (now.minute() >= alarm_time[MINUTE] || (now.minute() == 0 && alarm_time[MINUTE] == 59))) {
+  if (is_alarm == 1 && (now.minute() > alarm_time[MINUTE] || (now.minute() == 0 && alarm_time[MINUTE] == 59))) {
       //Serial.println("test");
       is_alarm = 0;
   }

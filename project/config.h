@@ -48,3 +48,4 @@
 #define ADDRH     2
 #define ADDRA     3
 #define ADDRD     4
+#define ADDRBN    5
