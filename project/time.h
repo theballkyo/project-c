@@ -24,8 +24,10 @@ extern int last_lcd_key;
 extern unsigned int currentMillis;
 extern int sound_interval[2];
 extern int lcd_key;
+extern int is_pongpongpong;
 
 extern void write_eeprom(int, int);
+extern int switch_cd(int, int);
 
 void show_time();
 void set_time(int key);

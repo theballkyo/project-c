@@ -45,7 +45,7 @@ void set_time(int key)
   // Set cooldown blink = 3
   sprintf(buffer1,"%02d:%02d:%02d",temp_time[HOUR],temp_time[MINUTE],temp_time[SECOND]);
   sprintf(buffer2,"%02d/%4s/%04d", temp_time[DAY], month_short_t[temp_time[MONTH]-1], temp_time[YEAR]);
-  if (cd == 4) {
+  if (switch_cd(2,4)) {
     if (set_sel == SECOND) {
       sprintf(buffer1,"%02d:%02d:  ",temp_time[HOUR],temp_time[MINUTE]);
     } else if (set_sel == MINUTE) {
@@ -59,9 +59,6 @@ void set_time(int key)
     } else if (set_sel == YEAR) {
       sprintf(buffer2,"%02d/%4s/    ", temp_time[DAY], month_short_t[temp_time[MONTH]-1]);
     } 
-    cd = 0;
-  } else {
-    cd += 1;
   }
   
   switch (key)
@@ -197,11 +194,11 @@ void set_alarm(int key)
 {
   DateTime now = RTC.now();
   alarm_time[DAY] = now.day();
-  char alarm_t[2][5] = {"OFF", "ON"};
+  char alarm_t[2][5] = {"OFF", "ON "};
   interval = 100;
   sprintf(buffer1, "%02d:%02d:%02d",alarm_time[HOUR], alarm_time[MINUTE], alarm_time[SECOND]);
   sprintf(buffer2,"Alarm is %s",alarm_t[alarm]);
-  if (cd == 4) {
+  if (switch_cd(2,4)) {
     if (set_sel == SECOND) {
       sprintf(buffer1,"%02d:%02d:  ",alarm_time[HOUR],alarm_time[MINUTE]);
     } else if (set_sel == MINUTE) {
@@ -211,10 +208,8 @@ void set_alarm(int key)
     } else if (set_sel == 3) {
       sprintf(buffer2,"Alarm is       ");
     }
-    cd = 0;
-  } else {
-    cd += 1;
   }
+
   switch(key)
   {
     case btnLEFT:
@@ -328,19 +323,28 @@ int is_alarming()
       is_alarm = 1;
   }
   // Alarm over 1 minute
-  if (is_alarm == 1 && (now.minute() > alarm_time[MINUTE] || (now.minute() == 0 && alarm_time[MINUTE] == 59))) {
+  if (is_alarm == 1 && (now.minute() > alarm_time[MINUTE] || (now.minute() == 0 && alarm_time[MINUTE] == 59)) && is_pongpongpong == 0) {
       //Serial.println("test");
       is_alarm = 0;
   }
   return is_alarm;
 }
 
+int stop_alarm()
+{
+  if (is_pongpongpong == 1) return 0;
+  is_alarm = 0;
+  analogWrite (speakerPin, 0);
+}
+
+void stop_alarm(int i)
+{
+  is_alarm = 0;
+  analogWrite (speakerPin, 0);
+}
+
 void play_sound_alarm()
 {
-  if (lcd_key != btnNONE && last_lcd_key != lcd_key) {
-    is_alarm = 0;
-    analogWrite (speakerPin, 0);
-  } else {
     if (currentMillis - previousMillis[1] > sound_interval[1]) {
       analogWrite (speakerPin, 255);
       previousMillis[1] = currentMillis;
@@ -352,11 +356,11 @@ void play_sound_alarm()
       }
         //delay(5);
     }
-  }
 }
 
 void set_temp_time()
 {
+  /*
   DateTime now = RTC.now();
   temp_time[SECOND] = now.second();
   temp_time[MINUTE] = now.minute();
@@ -364,4 +368,5 @@ void set_temp_time()
   temp_time[DAY] = now.day();
   temp_time[MONTH] = now.month();
   temp_time[YEAR] = now.year();
+  */
 }

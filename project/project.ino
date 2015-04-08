@@ -42,9 +42,13 @@ int game_select    = 0;
 extern int cd;
 int is_vision      = 0;
 int is_click       = 0;
+int is_pong_mode   = 1;
 int is_pongpongpong = 0;
 //int is_generate    = 0;
 int is_alarm       = 0;
+
+int game_pos_me[2] = {0};
+int game_dm[2][16] = {0};
 
 unsigned int currentMillis;
 unsigned int previousMillis[4] = {0};
@@ -126,6 +130,7 @@ void setup()
    Wire.begin();
    RTC.begin();
    DateTime now = RTC.now();
+   alarm_time[MINUTE] = now.minute() +1;
    //RTC.adjust(DateTime(__DATE__, __TIME__));
    lcd.begin(16, 2);              // start the library
    lcd.setCursor(0,0);
@@ -149,7 +154,18 @@ void loop()
   //DateTime now = RTC.now();
 
   lcd_key = read_LCD_buttons();
-  if ((is_alarming()==1 || is_pongpongpong == 1) && game_select != GAME2END) play_sound_alarm(),mode=PLAYGAME, game_select=GAME2, is_pongpongpong=1;
+
+  if (is_pongpongpong == 1) {
+    interval = 50;
+    play_sound_alarm();
+    mode=PLAYGAME;
+    game_select=GAME2;
+  } else if (is_alarming() == 1) {
+    if (is_pong_mode) {
+      is_pongpongpong=1;
+    }
+    play_sound_alarm();
+  }
   if (t_press > LONGCLICK)
   {
     Serial.print(t_press);
@@ -169,10 +185,11 @@ void loop()
     if(mode != last_mode)
     {
       last_mode = mode;
+      reset_var();
       lcd.clear(); 
     }
     if (mode == TIME) {
-      show_time(); 
+      show_time();
     } else if (mode == SETTIME) {
       set_time(lcd_key);
     } else if (mode == SELECTMODE) {
@@ -184,12 +201,12 @@ void loop()
     } else if (mode == PLAYGAME) {
       //Play game     
       if (game_select == GAME1) {
-        game1(lcd, lcd_key, interval, mode);
+        game1();
       } else if (game_select == GAME2) {
-        game2(lcd, lcd_key, interval, mode, game_select);
-      } else if (game_select == GAME2END) {
-        game2_end(lcd, lcd_key, interval, mode, game_select);
-      }
+        game2();
+      }/* else if (game_select == GAME2END) {
+        game2_end();
+      } */
     } else if (mode == SETBRIGHT) {
       brigtness();
     }
@@ -329,6 +346,9 @@ void select_game(int key)
   if (key != btnNONE) delay(200);
 }
 
+int read_eeprom(int addr){
+  return EEPROM.read(addr);
+}
 //this performs as EEPROM.write(i, i)
 void write_eeprom(int addr, int data)
 {
@@ -336,14 +356,26 @@ void write_eeprom(int addr, int data)
     EEPROM.write(addr, data);
   }
 }
-
+//This function is reset variable to default
 void reset_var()
 {
+  current_select = 0;
   a              = 0;
   b              = 0;
   game_ans       = 0;
   game_ans_c     = 0;
   game_select_c  = 0;
   memset(game_pos_me, 0, sizeof(game_pos_me));
-  memset(game_dm, 0, sizeof(game_dm[0][0])*2*16);
+  memset(game_dm, 0, sizeof(game_dm[0][0])*15*2);
+  cd = 0;
+}
+
+int switch_cd(int time_on, int time_off=1)
+{
+  cd++;
+  if (cd <= time_on) return 1;
+    
+  if (cd >= time_on + time_off) cd = 0;
+  
+  return 0;
 }

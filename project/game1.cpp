@@ -5,7 +5,7 @@
   Game Math Kid Wai
 */
 
-void game1(LiquidCrystal lcd, int key, int& interval, int& mode)
+void game1()
 {
   //char buffer[18] = "";
   interval = 100;
@@ -41,7 +41,7 @@ void game1(LiquidCrystal lcd, int key, int& interval, int& mode)
   lcd.print(buffer1);
   lcd.setCursor(game_select_c*5,1);
   lcd.print(">");
-  switch(key)
+  switch(lcd_key)
   {
     case btnRIGHT:
       {
@@ -73,7 +73,7 @@ void game1(LiquidCrystal lcd, int key, int& interval, int& mode)
         break;
       } 
   }
-  if (key != btnNONE) delay(200);
+  if (lcd_key != btnNONE) delay(200);
 
 }
 

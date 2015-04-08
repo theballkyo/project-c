@@ -49,3 +49,4 @@
 #define ADDRA     3
 #define ADDRD     4
 #define ADDRBN    5
+#define ADDRLV    6

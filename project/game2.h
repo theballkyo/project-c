@@ -7,8 +7,22 @@ extern int cd;
 extern int last_lcd_key;
 extern int is_pongpongpong;
 extern int is_alarm;
+extern int lcd_key;
+extern int interval;
+extern int mode;
+extern int last_mode;
+extern int game_select;
+extern int current_select;
 extern void reset_var();
 
-void game2(LiquidCrystal, int, int&, int&, int&);
+extern LiquidCrystal lcd;
+extern int read_eeprom(int);
+extern void write_eeprom(int,int);
+extern void stop_alarm(int);
 
-int game2_end(LiquidCrystal, int, int&, int&, int&);
+void game2();
+void game2_run();
+void game2_config();
+void game2_level();
+
+int game2_end();
