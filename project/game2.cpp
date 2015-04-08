@@ -76,6 +76,7 @@ void game2_config()
 
 void game2_level()
 {
+  interval = 200;
   if (level < 1) level = 1;
   if (level > 15) level = 15;
   lcd.setCursor(0, 0);
@@ -83,7 +84,7 @@ void game2_level()
   lcd.setCursor(0, 1);
   lcd.print("                ");
   lcd.setCursor(0, 1);
-  for (int i = 0; i <= level; ++i)
+  for (int i = 1; i <= level; ++i)
   {
     lcd.write(byte(2));
   }
@@ -164,9 +165,13 @@ void game2_run()
   lcd.setCursor(game_pos_me[X], game_pos_me[Y]);
   lcd.print(">");
   lcd.setCursor(14, 0);
-  lcd.print("^^");
+  //lcd.print("^^");
+  lcd.write(byte(3));
+  lcd.write(byte(4));
   lcd.setCursor(14, 1);
-  lcd.print("oo");
+  lcd.write(byte(5));
+  lcd.write(byte(6));
+  //lcd.print("oo");
   
   if(last_lcd_key != lcd_key)
   {

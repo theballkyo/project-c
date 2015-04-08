@@ -28,7 +28,6 @@ extern int is_pongpongpong;
 
 extern void write_eeprom(int, int);
 extern int switch_cd(int, int);
-
 void show_time();
 void set_time(int key);
 void set_alarm(int key);
