@@ -14,6 +14,8 @@ extern int last_mode;
 extern int game_select;
 extern int current_select;
 extern void reset_var();
+extern int state;
+extern int last_state;
 
 extern LiquidCrystal lcd;
 extern int read_eeprom(int);

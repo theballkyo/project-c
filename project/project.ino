@@ -39,7 +39,21 @@ int set_sel        = 2;
 int current_select = 0;
 int game_select    = 0;
 //
-extern int cd;
+int is_generate = 0;
+int a              = 0;
+int b              = 0;
+int c;
+int d;
+int game_c[3]      = {0};
+int game_ans       = 0;
+int game_ans_c     = 0;
+int game_select_c  = 0;
+
+int state = 0;
+int last_state = 0;
+
+int cd = 0;
+int last_lcd_key = btnNONE;
 int is_vision      = 0;
 int is_click       = 0;
 int is_pong_mode   = 1;
@@ -164,24 +178,28 @@ int read_LCD_buttons()
   
    return btnNONE;  // when all others fail, return this...
 }
-
+void create_char()
+{
+  lcd.createChar(1,smile);
+  lcd.createChar(0,sad);
+  lcd.createChar(2, barUp);
+  lcd.createChar(4, boss_ur);
+  lcd.createChar(3, boss_ul);
+  lcd.createChar(5, boss_dl);
+  lcd.createChar(6, boss_dr);
+}
 void setup()
 {
    Wire.begin();
    RTC.begin();
    DateTime now = RTC.now();
-   //alarm_time[MINUTE] = now.minute() +1;
+   //alarm_time[HOUR] = now.hour();
+   //alarm_time[MINUTE] = now.minute() + 1;
    //RTC.adjust(DateTime(__DATE__, __TIME__));
    lcd.begin(16, 2);              // start the library
    lcd.setCursor(0,0);
    lcd.print(now.hour()); // print a simple message
-   lcd.createChar(1,smile);
-   lcd.createChar(0,sad);
-   lcd.createChar(2, barUp);
-   lcd.createChar(4, boss_ur);
-   lcd.createChar(3, boss_ul);
-   lcd.createChar(5, boss_dl);
-   lcd.createChar(6, boss_dr);
+   create_char();
    analogWrite(10, get_bright_lv());
    Serial.begin(9600);
    Serial.println("Setup");
@@ -204,9 +222,12 @@ void loop()
     play_sound_alarm();
     mode=PLAYGAME;
     game_select=GAME2;
+    Serial.println("Pongpong");
   } else if (is_alarming() == 1) {
+    Serial.println("Is alarm");
     if (is_pong_mode) {
       is_pongpongpong=1;
+      reset_var();
     }
     play_sound_alarm();
   }
@@ -229,6 +250,7 @@ void loop()
     if(mode != last_mode)
     {
       last_mode = mode;
+      create_char();
       reset_var();
       lcd.clear(); 
     }
@@ -344,15 +366,15 @@ void select_game(int key)
   interval = 100;
   lcd.setCursor(0,0);
   lcd.print("Select game.");
+  //lcd.setCursor(0,1);
+  //lcd.print("                ");
   lcd.setCursor(0,1);
-  lcd.print("                ");
-  lcd.setCursor(1,1);
   if (game_select == GAME1) {
-    lcd.print("> MATH");
+    lcd.print("> MATH          ");
   } else if (game_select == GAME2) {
-    lcd.print("> PONG PONG");
+    lcd.print("> NIGHTMARE HERO");
   } else if (game_select == 2) {
-    lcd.print("> Exit");
+    lcd.print("> Exit          ");
   }
   
   switch (key)
@@ -374,6 +396,7 @@ void select_game(int key)
         if (is_pongpongpong && game_select == 2) {
           break;
         }
+        if (last_lcd_key == lcd_key) break;
         if (is_click < LONGCLICK){
           lcd.clear();
           //Reset variable
@@ -406,9 +429,12 @@ void reset_var()
   current_select = 0;
   a              = 0;
   b              = 0;
+  c              = 0;
+  d              = 0;
   game_ans       = 0;
   game_ans_c     = 0;
   game_select_c  = 0;
+  state          = 0;
   memset(game_pos_me, 0, sizeof(game_pos_me));
   memset(game_dm, 0, sizeof(game_dm[0][0])*15*2);
   cd = 0;

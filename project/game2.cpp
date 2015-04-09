@@ -2,11 +2,11 @@
 #include "game2.h"
 #include "config.h"
 
-int state = 0;
-int last_state = 0;
 int level = read_eeprom(ADDRLV);
+
 void game2()
 {
+  static int times = 0;
   //Prepare if enter game first time
   if (mode != last_mode) {
     current_select = 0;
@@ -28,8 +28,31 @@ void game2()
 
 void game2_config()
 {
+  byte hero[8] = {
+	0b00100,
+	0b01110,
+	0b10101,
+	0b11111,
+	0b00100,
+	0b01110,
+	0b10101,
+	0b01010
+  };
+  byte boom[8] = {
+	0b11011,
+	0b11011,
+	0b00100,
+	0b01010,
+	0b10101,
+	0b10101,
+	0b01110,
+	0b00000
+  };
+  
+  lcd.createChar(0, hero);
+  lcd.createChar(1, boom);
   lcd.setCursor(0, 0);
-  lcd.print("GAME PONGPONG");
+  lcd.print("NIGHTMARE HERO! ");
   lcd.setCursor(0, 1);
   if (current_select == 0) {
     lcd.print("Play game.      ");
@@ -79,6 +102,7 @@ void game2_level()
   interval = 200;
   if (level < 1) level = 1;
   if (level > 15) level = 15;
+  if (is_pongpongpong && level < 6) level = 6; 
   lcd.setCursor(0, 0);
   lcd.print("Set level    ");
   lcd.setCursor(0, 1);
@@ -121,13 +145,14 @@ void game2_level()
 void game2_run()
 {
   interval = 50;
-  lcd.clear();
+  //lcd.clear();
   
   lcd.setCursor(0,0);
     for(int i = 0; i < 14; i++)
     {
       if (game_dm[0][i] == 1) {
-        lcd.print("-"); 
+        lcd.write(byte(1));
+        //lcd.print("-"); 
       } else {
         lcd.print(" ");
       }
@@ -137,7 +162,8 @@ void game2_run()
     for(int i = 0; i < 14; i++)
     {
       if (game_dm[1][i] == 1) {
-        lcd.print("-"); 
+        //lcd.print("-");
+        lcd.write(byte(1)); 
       } else {
         lcd.print(" ");
       }
@@ -147,13 +173,14 @@ void game2_run()
         game_dm[0][i] = game_dm[0][i+1];
         game_dm[1][i] = game_dm[1][i+1];
         if (game_dm[0][i-1] == 0 && game_dm[1][i-1] == 0 && game_dm[0][i-2] == 0 && game_dm[1][i-2] == 0 && i == 13) {
-         if (random(1,2) == 1) {
-           if (random(0,100) > 50) {
-             game_dm[0][i] = 1;
-           } else {
-             game_dm[1][i] = 1;
-           }
-         }
+         //randomSeed(micros());
+         int c = millis()%2;
+         Serial.println(c);
+         if (c == 0) {
+           game_dm[0][i] = 1;
+         } else {
+           game_dm[1][i] = 1;
+         }     
         }
       }
     }
@@ -163,7 +190,8 @@ void game2_run()
   cd += interval;
   
   lcd.setCursor(game_pos_me[X], game_pos_me[Y]);
-  lcd.print(">");
+  //lcd.print(">");
+  lcd.write(byte(0));
   lcd.setCursor(14, 0);
   //lcd.print("^^");
   lcd.write(byte(3));
@@ -228,6 +256,7 @@ int game2_end()
       Serial.println("is_pong" + String(is_pongpongpong));
       is_pongpongpong = 0;
       stop_alarm(1);
+      mode = TIME;
     }
     reset_var();
     //delay(100);

@@ -37,21 +37,22 @@ void show_time()
 
 void set_time(int key)
 {
+  DateTime now = RTC.now();
   // Set delay
   interval = 100;
   lcd.setCursor(0, 0);
   //lcd.print("                ");
   //Serial.print(set_sel);
   // Set cooldown blink = 3
-  sprintf(buffer1,"%02d:%02d:%02d",temp_time[HOUR],temp_time[MINUTE],temp_time[SECOND]);
+  sprintf(buffer1,"%02d:%02d:%02d",temp_time[HOUR],temp_time[MINUTE],now.second());
   sprintf(buffer2,"%02d/%4s/%04d", temp_time[DAY], month_short_t[temp_time[MONTH]-1], temp_time[YEAR]);
   if (switch_cd(2,4)) {
     if (set_sel == SECOND) {
       sprintf(buffer1,"%02d:%02d:  ",temp_time[HOUR],temp_time[MINUTE]);
     } else if (set_sel == MINUTE) {
-      sprintf(buffer1,"%02d:  :%02d",temp_time[HOUR],temp_time[SECOND]);
+      sprintf(buffer1,"%02d:  :%02d",temp_time[HOUR],now.second());
     } else if (set_sel == HOUR) {
-      sprintf(buffer1,"  :%02d:%02d",temp_time[MINUTE],temp_time[SECOND]);
+      sprintf(buffer1,"  :%02d:%02d",temp_time[MINUTE],now.second());
     } else if (set_sel == DAY) {
       sprintf(buffer2,"  /%4s/%04d", month_short_t[temp_time[MONTH]-1], temp_time[YEAR]);
     } else if (set_sel == MONTH) {
@@ -84,8 +85,8 @@ void set_time(int key)
         {
           case SECOND:
             {
-              //adjustTime(-now.second());
-              temp_time[SECOND] = 0;
+              RTC.adjust(DateTime(temp_time[YEAR], temp_time[MONTH], temp_time[DAY], temp_time[HOUR], temp_time[MINUTE], 0));
+              //temp_time[SECOND] = 0;
               break;
             }
           case MINUTE:
@@ -128,9 +129,9 @@ void set_time(int key)
         {
           case SECOND:
             {
-              //adjustTime(-now.second());
-              temp_time[SECOND] = 0;
-              break;
+              RTC.adjust(DateTime(temp_time[YEAR], temp_time[MONTH], temp_time[DAY], temp_time[HOUR], temp_time[MINUTE], 0));
+              //temp_time[SECOND] = 0;
+              break;        
             }
           case MINUTE:
             {
@@ -168,7 +169,7 @@ void set_time(int key)
       
     case btnSELECT:
       {
-        if (is_click < LONGCLICK) mode = TIME, interval = 1000, previousMillis[0] = 0, lcd.clear(), RTC.adjust(DateTime(temp_time[YEAR], temp_time[MONTH], temp_time[DAY], temp_time[HOUR], temp_time[MINUTE], temp_time[SECOND]));
+        if (is_click < LONGCLICK) mode = TIME, interval = 1000, previousMillis[0] = 0, lcd.clear(), RTC.adjust(DateTime(temp_time[YEAR], temp_time[MONTH], temp_time[DAY], temp_time[HOUR], temp_time[MINUTE], now.second()));
         break;
       }
   }
@@ -319,7 +320,7 @@ int is_alarming()
   DateTime now = RTC.now();
   //Serial.println("alarm");
   if (now.hour() == alarm_time[HOUR] && now.minute() == alarm_time[MINUTE] && alarm == 1 && mode != SETALARM && now.second() <= 1) {
-      Serial.println("test");
+      Serial.println("alarm");
       is_alarm = 1;
   }
   // Alarm over 1 minute
@@ -360,7 +361,7 @@ void play_sound_alarm()
 
 void set_temp_time()
 {
-  /*
+  
   DateTime now = RTC.now();
   temp_time[SECOND] = now.second();
   temp_time[MINUTE] = now.minute();
@@ -368,5 +369,5 @@ void set_temp_time()
   temp_time[DAY] = now.day();
   temp_time[MONTH] = now.month();
   temp_time[YEAR] = now.year();
-  */
+
 }
