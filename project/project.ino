@@ -313,17 +313,17 @@ void select_mode(int key)
   //lcd.print("              ");
   lcd.setCursor(1,1);
   if (current_select == TIME) {
-    lcd.print("Time         ");
+    lcd.print("Time            ");
   } else if (current_select == SETTIME) {
-    lcd.print("Set time.      ");
+    lcd.print("Set time.       ");
   } else if (current_select == SETALARM) {
-    lcd.print("Set alarm.     ");
+    lcd.print("Set alarm.      ");
   } else if (current_select == SELECTGAME) {
     lcd.print("Play game Yeah!");
   } else if (current_select == SETBRIGHT) {
     lcd.print("Set brightness.");
   } else if (current_select == NUMMODE) {
-    lcd.print("Exit.         ");
+    lcd.print("Exit.          ");
   }
   
   switch (key)
