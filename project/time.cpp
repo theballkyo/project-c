@@ -17,17 +17,17 @@ void show_time()
   */
   lcd.clear();
   lcd.setCursor(shit,0);
-  sprintf(buffer1,"%02d:%02d:%02d %dC",now.hour(),now.minute(),now.second(), (int)floor(RTC.getTemperature()));
+  sprintf(buffer1,"%02d:%02d:%02d %d",now.hour(),now.minute(),now.second(), (int)floor(RTC.getTemperature()));
   Serial.println(RTC.getTemperature());
   lcd.print(buffer1);
-
+  lcd.write(byte(0));
   sprintf(buffer1,"%s:%02d/%s/%04d", day_short_t[now.dayOfWeek()], now.day(), month_short_t[now.month()-1], now.year());
   lcd.setCursor(0,1);
   //lcd.print(String(day_short_t[weeknow.day()-1]) + "/" + month_short_t[now.month()-1] + "/" + now.year());
   //int w = weeknow.day();
   //lcd.print(String(day_t[6]) + "/" + month_t[1]);
   lcd.print(buffer1);
-  lcd.write((byte)alarm);
+  if(alarm) lcd.write((byte)1);
   Serial.print(buffer1);
   Serial.println();
   shit += 1;
@@ -319,10 +319,11 @@ int is_alarming()
   if (is_alarm == 1) return is_alarm;
   DateTime now = RTC.now();
   //Serial.println("alarm");
-  if (now.hour() == alarm_time[HOUR] && now.minute() == alarm_time[MINUTE] && alarm == 1 && mode != SETALARM && now.second() <= 1) {
+  if (now.hour() == alarm_time[HOUR] && now.minute() == alarm_time[MINUTE] && now.second() == alarm_time[SECOND] && alarm == 1 && mode != SETALARM) {
       Serial.println("alarm");
       is_alarm = 1;
   }
+  
   // Alarm over 1 minute
   if (is_alarm == 1 && (now.minute() > alarm_time[MINUTE] || (now.minute() == 0 && alarm_time[MINUTE] == 59)) && is_pongpongpong == 0) {
       //Serial.println("test");

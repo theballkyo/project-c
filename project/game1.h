@@ -13,13 +13,14 @@ extern int lcd_key;
 extern int last_lcd_key;
 extern int interval;
 extern int mode;
+extern int is_pongpongpong;
 extern char buffer1[18];
 extern char buffer2[18];
 
+extern void stop_alarm(int);
 extern LiquidCrystal lcd;
 extern void reset_var();
 void game1();
-void game1_setup();
 void game1_config(unsigned int&);
 void game1_run(unsigned int, int&);
 void game1_end(unsigned int&, int&);

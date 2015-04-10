@@ -79,24 +79,24 @@ char month_short_t[12][10] = {"Jan","Feb","Mar","Apr","May","June","July","Aug",
 char day_short_t[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 byte smile[8] = {
-  0b00000,
-  0b00000,
-  0b01010,
-  0b00000,
-  0b00000,
-  0b10001,
-  0b01110,
-  0b00000
-};
-byte sad[8] = {
-	0b00000,
-	0b00000,
-	0b10001,
-	0b00000,
+        0b00000,
 	0b00000,
 	0b01110,
+	0b10101,
+	0b10111,
 	0b10001,
+	0b01110,
 	0b00000
+};
+byte oc[8] = {
+	0b01000,
+	0b10100,
+	0b01000,
+	0b00111,
+	0b01000,
+	0b01000,
+	0b01000,
+	0b00111
 };
 
 //setup brigtness LCD
@@ -181,7 +181,7 @@ int read_LCD_buttons()
 void create_char()
 {
   lcd.createChar(1,smile);
-  lcd.createChar(0,sad);
+  lcd.createChar(0,oc);
   lcd.createChar(2, barUp);
   lcd.createChar(4, boss_ur);
   lcd.createChar(3, boss_ul);
@@ -218,15 +218,17 @@ void loop()
   lcd_key = read_LCD_buttons();
 
   if (is_pongpongpong == 1) {
-    interval = 50;
+    interval = 100;
     play_sound_alarm();
-    mode=PLAYGAME;
-    game_select=GAME2;
+    
+    //game_select=GAME2;
     Serial.println("Pongpong");
   } else if (is_alarming() == 1) {
     Serial.println("Is alarm");
     if (is_pong_mode) {
+      game_select = 0;
       is_pongpongpong=1;
+      mode=SELECTGAME;
       reset_var();
     }
     play_sound_alarm();
@@ -270,9 +272,7 @@ void loop()
         game1();
       } else if (game_select == GAME2) {
         game2();
-      }/* else if (game_select == GAME2END) {
-        game2_end();
-      } */
+      }
     } else if (mode == SETBRIGHT) {
       brigtness();
     }
@@ -370,7 +370,7 @@ void select_game(int key)
   //lcd.print("                ");
   lcd.setCursor(0,1);
   if (game_select == GAME1) {
-    lcd.print("> MATH          ");
+    lcd.print("> FUCKING MATH  ");
   } else if (game_select == GAME2) {
     lcd.print("> NIGHTMARE HERO");
   } else if (game_select == 2) {
@@ -406,6 +406,8 @@ void select_game(int key)
           previousMillis[0] = 0;
         }
         if (game_select == 2) mode = TIME;
+        //if (is_pongpongpong = 1) mode = SELECTGAME;
+
         break;
       }
   }

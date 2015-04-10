@@ -11,7 +11,6 @@ void game1()
   interval = 100;
   static unsigned int num_game = 3;
   static int game_win = 0;
-  game1_setup();
   if (state == 0) {
     game1_config(num_game);
   } else if (state == 1) {
@@ -21,13 +20,12 @@ void game1()
   }
 }
 
-void game1_setup()
-{
-  
-}
 void game1_config(unsigned int& num_game)
 {
+  //interval = 150;
+  if (last_lcd_key == lcd_key) return;
   if (num_game < 1) num_game = 1;
+  if (is_pongpongpong == 1 && num_game < 3) num_game = 3;
   lcd.setCursor(0, 0);
   lcd.print("Enter num game.   ");
   lcd.setCursor(0, 1);
@@ -66,10 +64,10 @@ void game1_run(unsigned int num_game, int& game_win)
 {
   interval = 100;
   if (!is_generate) {
-    a = random(10,99);
-    b = random(10,99);
-    c = random(10,99);
-    d = random(10,99);
+    a = random(10,100);
+    b = random(10,100);
+    c = random(10,100);
+    d = random(10,100);
     lcd.setCursor(0,0);
     lcd.print("                ");
     lcd.setCursor(0,0);
@@ -97,8 +95,9 @@ void game1_run(unsigned int num_game, int& game_win)
       } else {
         int r;
         do {
-          r = random(10, 400);
-          if (millis()%2) r = -r;
+          r = random(-178, 288);
+          //if (millis()%2) r = -r;
+          //if (r < -178) r = -178;
         }while(r==game_ans);
         game_c[i] = r;
         //lcd.print(r);
@@ -166,7 +165,7 @@ void game1_run(unsigned int num_game, int& game_win)
         }
         game_select_c = 0;
         current_n_game += 1;
-        delay(3000);
+        delay(1500);
         is_generate = 0;
         if (current_n_game > num_game) {
           state = 2;
@@ -192,5 +191,11 @@ void game1_end(unsigned int& num_game, int& game_win)
     game_win = 0;
     current_n_game = 1;
     reset_var();
+    //if (is_pongpongpong && game_win == num_game) mode = TIME;
+  }
+  if (is_pongpongpong && game_win == num_game) {
+     is_pongpongpong = 0;
+     stop_alarm(1);
+     mode = TIME;
   }
 }

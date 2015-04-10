@@ -12,6 +12,7 @@ void game2()
     current_select = 0;
   }
   if (state == 0) {
+    if (is_pongpongpong && level < 8) level = 8; 
     game2_config();
   } else if (state == 1) {
     game2_end();
@@ -29,24 +30,24 @@ void game2()
 void game2_config()
 {
   byte hero[8] = {
-	0b00100,
-	0b01110,
+	0b10001,
+	0b11111,
 	0b10101,
+	0b01110,
+	0b00100,
 	0b11111,
 	0b00100,
-	0b01110,
-	0b10101,
 	0b01010
   };
   byte boom[8] = {
-	0b11011,
-	0b11011,
+	0b00011,
 	0b00100,
-	0b01010,
-	0b10101,
-	0b10101,
-	0b01110,
-	0b00000
+	0b01000,
+	0b10000,
+	0b10000,
+	0b01000,
+	0b00100,
+	0b00011
   };
   
   lcd.createChar(0, hero);
@@ -84,11 +85,15 @@ void game2_config()
           } else if (current_select == 1) {
             state = 3;
           } else {
+            mode = SELECTGAME; 
+          }
+          /* else {
             if (is_pongpongpong != 1)
               mode = SELECTGAME;
             else
               state = 0;
           }
+          */
         }
         break;
       }
@@ -101,8 +106,8 @@ void game2_level()
 {
   interval = 200;
   if (level < 1) level = 1;
-  if (level > 15) level = 15;
-  if (is_pongpongpong && level < 6) level = 6; 
+  if (level > 16) level = 16;
+  if (is_pongpongpong && level < 8) level = 8; 
   lcd.setCursor(0, 0);
   lcd.print("Set level    ");
   lcd.setCursor(0, 1);
@@ -180,7 +185,14 @@ void game2_run()
            game_dm[0][i] = 1;
          } else {
            game_dm[1][i] = 1;
-         }     
+         }
+         if (game_dm[0][i] == 1 && game_dm[0][i-1] == 1 && game_dm[0][i-2] == 1 && game_dm[0][i-3] == 1) {
+           game_dm[0][i] = 0;
+           game_dm[1][i] = 1;
+         } else if (game_dm[1][i] == 1 && game_dm[1][i-1] == 1 && game_dm[1][i-2] == 1 && game_dm[1][i-3] == 1) {
+           game_dm[0][i] = 1;
+           game_dm[1][i] = 0;
+         }
         }
       }
     }
