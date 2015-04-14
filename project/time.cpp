@@ -30,6 +30,8 @@ void show_time()
   if(alarm) lcd.write((byte)1);
   Serial.print(buffer1);
   Serial.println();
+   sprintf(buffer1,"%02d/%02d/%02d", alarm_time[HOUR], alarm_time[MINUTE], alarm_time[SECOND]);
+  Serial.println(buffer1);
   shit += 1;
   if (shit >=5)
     shit = 0;

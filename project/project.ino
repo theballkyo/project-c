@@ -36,8 +36,10 @@ int alarm          = 1;
 //Check button press time
 int t_press        = 0;
 int set_sel        = 2;
+int current_n_game = 0;
 int current_select = 0;
 int game_select    = 0;
+int game_win       = 0;
 //
 int is_generate = 0;
 int a              = 0;
@@ -52,7 +54,7 @@ int game_select_c  = 0;
 int state = 0;
 int last_state = 0;
 
-int cd = 0;
+long int cd = 0;
 int last_lcd_key = btnNONE;
 int is_vision      = 0;
 int is_click       = 0;
@@ -193,8 +195,9 @@ void setup()
    Wire.begin();
    RTC.begin();
    DateTime now = RTC.now();
-   //alarm_time[HOUR] = now.hour();
-   //alarm_time[MINUTE] = now.minute() + 1;
+   alarm_time[HOUR] = now.hour();
+   alarm_time[MINUTE] = now.minute();
+   alarm_time[SECOND] = now.second()+5;
    //RTC.adjust(DateTime(__DATE__, __TIME__));
    lcd.begin(16, 2);              // start the library
    lcd.setCursor(0,0);
@@ -277,13 +280,17 @@ void loop()
       brigtness();
     }
     //Set randomSeed
-    randomSeed(millis());
     last_lcd_key = lcd_key;
+    randomSeed(millis());
     previousMillis[0] = currentMillis;
   }
   
   if (currentMillis - previousMillis[3] > 1) {
     is_click += currentMillis - previousMillis[3];
+    if (lcd_key == btnSELECT) {
+      t_press += currentMillis - previousMillis[3];
+    }
+    /*
     switch (lcd_key)
     {
       case btnSELECT:
@@ -298,7 +305,13 @@ void loop()
           break;
         }
     } 
+    */
     previousMillis[3] = currentMillis;
+  }
+  //Reset press click
+  if (lcd_key == btnNONE) {
+    is_click = 0;
+    t_press  = 0; 
   }
   //delay(1);
 }
@@ -436,7 +449,10 @@ void reset_var()
   game_ans       = 0;
   game_ans_c     = 0;
   game_select_c  = 0;
+  game_win       = 0;
   state          = 0;
+  is_generate    = 0;
+  current_n_game = 1;
   memset(game_pos_me, 0, sizeof(game_pos_me));
   memset(game_dm, 0, sizeof(game_dm[0][0])*15*2);
   cd = 0;
@@ -450,4 +466,27 @@ int switch_cd(int time_on, int time_off=1)
   if (cd >= time_on + time_off) cd = 0;
   
   return 0;
+}
+
+void new_delay(unsigned long int ms)
+{
+  unsigned long int j = 0;
+  do {
+    j = millis();
+  }while(j < 0);
+  Serial.println(j);
+  while(j+ms > millis())
+  {
+    currentMillis = millis();
+    if (read_LCD_buttons()
+    == btnNONE) {
+      is_click = 0;
+      t_press  = 0; 
+    }
+    if (is_pongpongpong) {
+      play_sound_alarm();
+    }
+    Serial.println(String(j+ms) + " : " + String(millis()));
+  }
+  
 }

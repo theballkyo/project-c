@@ -13,7 +13,7 @@ extern char buffer2[18];
 extern char month_short_t[12][10];
 extern char day_short_t[7][4];
 extern int alarm;
-extern int cd;
+extern long int cd;
 extern int is_click;
 extern int mode;
 extern int set_sel;

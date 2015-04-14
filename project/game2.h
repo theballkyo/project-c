@@ -3,7 +3,7 @@
 extern int game_pos_me[2];
 extern int game_dm[2][16];
 extern int game_ans;
-extern int cd;
+extern long int cd;
 extern int last_lcd_key;
 extern int is_pongpongpong;
 extern int is_alarm;

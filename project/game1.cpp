@@ -4,13 +4,12 @@
 /*
   Game Math Kid Wai
 */
-static int current_n_game = 1;
-extern int state;
+
 void game1()
 {
   interval = 100;
   static unsigned int num_game = 3;
-  static int game_win = 0;
+  //static int game_win = 0;
   if (state == 0) {
     game1_config(num_game);
   } else if (state == 1) {
@@ -96,8 +95,7 @@ void game1_run(unsigned int num_game, int& game_win)
         int r;
         do {
           r = random(-178, 288);
-          //if (millis()%2) r = -r;
-          //if (r < -178) r = -178;
+
         }while(r==game_ans);
         game_c[i] = r;
         //lcd.print(r);
@@ -105,6 +103,7 @@ void game1_run(unsigned int num_game, int& game_win)
       //lcd.setCursor((i+1)*5 + 1,1); 
     }
     sprintf(buffer1, " %4d %4d %4d", game_c[0], game_c[1],game_c[2]);
+    Serial.println(String(buffer1) + " : " + String(game_ans));
     is_generate = 1;
   }
   lcd.setCursor(0,1);
@@ -161,11 +160,11 @@ void game1_run(unsigned int num_game, int& game_win)
           lcd.print("Yes, Correct.");
           game_win += 1;
         } else {
-          lcd.print("No, Wrong.");
+          lcd.print("No, Wrong. A:" + String(game_ans));
         }
         game_select_c = 0;
         current_n_game += 1;
-        delay(1500);
+        new_delay(1500);
         is_generate = 0;
         if (current_n_game > num_game) {
           state = 2;
@@ -193,7 +192,7 @@ void game1_end(unsigned int& num_game, int& game_win)
     reset_var();
     //if (is_pongpongpong && game_win == num_game) mode = TIME;
   }
-  if (is_pongpongpong && game_win == num_game) {
+  if (is_pongpongpong && game_win >= num_game) {
      is_pongpongpong = 0;
      stop_alarm(1);
      mode = TIME;

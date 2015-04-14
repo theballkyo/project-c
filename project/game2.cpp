@@ -12,7 +12,7 @@ void game2()
     current_select = 0;
   }
   if (state == 0) {
-    if (is_pongpongpong && level < 8) level = 8; 
+    if (is_pongpongpong && level < 9) level = 9; 
     game2_config();
   } else if (state == 1) {
     game2_end();
@@ -174,32 +174,31 @@ void game2_run()
       }
       
       //Generate 
-      if (cd >= interval * (16 - level)) {
+      if (millis() > cd) {
         game_dm[0][i] = game_dm[0][i+1];
         game_dm[1][i] = game_dm[1][i+1];
         if (game_dm[0][i-1] == 0 && game_dm[1][i-1] == 0 && game_dm[0][i-2] == 0 && game_dm[1][i-2] == 0 && i == 13) {
          //randomSeed(micros());
          int c = millis()%2;
-         Serial.println(c);
+         //Serial.println(c);
          if (c == 0) {
            game_dm[0][i] = 1;
          } else {
            game_dm[1][i] = 1;
          }
-         if (game_dm[0][i] == 1 && game_dm[0][i-1] == 1 && game_dm[0][i-2] == 1 && game_dm[0][i-3] == 1) {
+         if (game_dm[0][i] == 1 && game_dm[0][i-3] == 1 && game_dm[0][i-6] == 1 && game_dm[0][i-9] == 1) {
            game_dm[0][i] = 0;
            game_dm[1][i] = 1;
-         } else if (game_dm[1][i] == 1 && game_dm[1][i-1] == 1 && game_dm[1][i-2] == 1 && game_dm[1][i-3] == 1) {
+         } else if (game_dm[1][i] == 1 && game_dm[1][i-3] == 1 && game_dm[1][i-6] == 1 && game_dm[1][i-9] == 1) {
            game_dm[0][i] = 1;
            game_dm[1][i] = 0;
          }
         }
       }
     }
-    
-  if (cd >= interval * (16 - level))
-    cd = 0;
-  cd += interval;
+  if (millis() > cd)
+    cd = millis() + (50 * (16 - level));
+  //cd += interval;
   
   lcd.setCursor(game_pos_me[X], game_pos_me[Y]);
   //lcd.print(">");
@@ -261,15 +260,17 @@ int game2_end()
   lcd.print("Please any key.");
   Serial.println(game_ans);
   Serial.println("is_pong" + String(is_pongpongpong));
+  if (is_pongpongpong == 1 && game_ans  == 1) {
+    Serial.println(game_ans);
+    Serial.println("is_pong" + String(is_pongpongpong));
+    is_pongpongpong = 0;
+    stop_alarm(1);
+    reset_var();
+    mode = TIME;
+  }
   if(lcd_key != btnNONE && last_lcd_key != lcd_key){
     state = 0;
-    if (is_pongpongpong == 1 && game_ans  == 1) {
-      Serial.println(game_ans);
-      Serial.println("is_pong" + String(is_pongpongpong));
-      is_pongpongpong = 0;
-      stop_alarm(1);
-      mode = TIME;
-    }
+    
     reset_var();
     //delay(100);
   }
