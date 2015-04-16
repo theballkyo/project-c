@@ -24,6 +24,7 @@ extern void stop_alarm(int);
 extern LiquidCrystal lcd;
 extern void reset_var();
 extern void new_delay(unsigned long int);
+
 void game1();
 void game1_config(unsigned int&);
 void game1_run(unsigned int, int&);

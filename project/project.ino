@@ -24,7 +24,7 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 RTC_DS3231 RTC;
 // define some values used by the panel and buttons
 int lcd_key        = 0;
-extern int last_lcd_key;
+//extern int last_lcd_key;
 int adc_key_in     = 0;
 int shit           = 0;
 int mode           = 0;
@@ -32,7 +32,7 @@ int last_mode      = 0;
 int interval       = 1000;
 int sound_interval[2] = {100, 5};
 // 0 Off 1 On
-int alarm          = 1;
+int alarm          = read_eeprom(ADDRA);
 //Check button press time
 int t_press        = 0;
 int set_sel        = 2;
@@ -262,13 +262,13 @@ void loop()
     if (mode == TIME) {
       show_time();
     } else if (mode == SETTIME) {
-      set_time(lcd_key);
+      set_time();
     } else if (mode == SELECTMODE) {
-      select_mode(lcd_key); 
+      select_mode(); 
     } else if (mode == SETALARM) {
-      set_alarm(lcd_key);
+      set_alarm();
     } else if (mode == SELECTGAME) {
-      select_game(lcd_key); 
+      select_game(); 
     } else if (mode == PLAYGAME) {
       //Play game     
       if (game_select == GAME1) {
@@ -317,7 +317,7 @@ void loop()
 }
 
 
-void select_mode(int key)
+void select_mode()
 {
   interval = 100;
   lcd.setCursor(0,0);
@@ -339,7 +339,7 @@ void select_mode(int key)
     lcd.print("Exit.          ");
   }
   
-  switch (key)
+  switch (lcd_key)
   {
     case btnDOWN:
       {
@@ -371,10 +371,10 @@ void select_mode(int key)
       }
   }
   
-  if (key != btnNONE) delay(200);
+  if (lcd_key != btnNONE) delay(200);
 }
 
-void select_game(int key)
+void select_game()
 {
   interval = 100;
   lcd.setCursor(0,0);
@@ -390,7 +390,7 @@ void select_game(int key)
     lcd.print("> Exit          ");
   }
   
-  switch (key)
+  switch (lcd_key)
   {
     case btnDOWN:
       {
@@ -425,7 +425,7 @@ void select_game(int key)
       }
   }
   
-  if (key != btnNONE) delay(200);
+  if (lcd_key != btnNONE) delay(200);
 }
 
 int read_eeprom(int addr){
@@ -460,7 +460,7 @@ void reset_var()
 
 int switch_cd(int time_on, int time_off=1)
 {
-  cd++;
+  cd += interval;
   if (cd <= time_on) return 1;
     
   if (cd >= time_on + time_off) cd = 0;

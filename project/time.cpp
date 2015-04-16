@@ -37,7 +37,7 @@ void show_time()
     shit = 0;
 }
 
-void set_time(int key)
+void set_time()
 {
   DateTime now = RTC.now();
   // Set delay
@@ -48,7 +48,7 @@ void set_time(int key)
   // Set cooldown blink = 3
   sprintf(buffer1,"%02d:%02d:%02d",temp_time[HOUR],temp_time[MINUTE],now.second());
   sprintf(buffer2,"%02d/%4s/%04d", temp_time[DAY], month_short_t[temp_time[MONTH]-1], temp_time[YEAR]);
-  if (switch_cd(2,4)) {
+  if (switch_cd(200,400)) {
     if (set_sel == SECOND) {
       sprintf(buffer1,"%02d:%02d:  ",temp_time[HOUR],temp_time[MINUTE]);
     } else if (set_sel == MINUTE) {
@@ -64,7 +64,7 @@ void set_time(int key)
     } 
   }
   
-  switch (key)
+  switch (lcd_key)
   {
     
     case btnLEFT:
@@ -176,7 +176,7 @@ void set_time(int key)
       }
   }
   
-  if (key != btnNONE) delay(200);
+  if (lcd_key != btnNONE) delay(200);
   if (temp_time[MINUTE] > 59) temp_time[MINUTE] = 0;
   if (temp_time[HOUR] > 23) temp_time[HOUR] = 0;
   if (temp_time[DAY] > 31) temp_time[DAY] = 1;
@@ -193,7 +193,7 @@ void set_time(int key)
   
 }
 
-void set_alarm(int key)
+void set_alarm()
 {
   DateTime now = RTC.now();
   alarm_time[DAY] = now.day();
@@ -201,7 +201,7 @@ void set_alarm(int key)
   interval = 100;
   sprintf(buffer1, "%02d:%02d:%02d",alarm_time[HOUR], alarm_time[MINUTE], alarm_time[SECOND]);
   sprintf(buffer2,"Alarm is %s",alarm_t[alarm]);
-  if (switch_cd(2,4)) {
+  if (switch_cd(200,400)) {
     if (set_sel == SECOND) {
       sprintf(buffer1,"%02d:%02d:  ",alarm_time[HOUR],alarm_time[MINUTE]);
     } else if (set_sel == MINUTE) {
@@ -213,7 +213,7 @@ void set_alarm(int key)
     }
   }
 
-  switch(key)
+  switch(lcd_key)
   {
     case btnLEFT:
       {
@@ -313,7 +313,7 @@ void set_alarm(int key)
   lcd.setCursor(0,1);
   lcd.print(buffer2);
   
-  if (key != btnNONE) delay(200);
+  if (lcd_key != btnNONE) delay(200);
 }
 
 int is_alarming()
